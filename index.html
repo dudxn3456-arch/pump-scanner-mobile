@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101418">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="급등주 스캐너">
+  <title>스마트폰 급등주 스캐너</title>
+  <style>
+    :root {
+      --bg: #f5f7f9;
+      --panel: #ffffff;
+      --ink: #14181d;
+      --muted: #64707d;
+      --line: #dde3ea;
+      --soft: #eef2f6;
+      --green: #15803d;
+      --teal: #0f766e;
+      --yellow: #a16207;
+      --red: #b91c1c;
+      --blue: #1d4ed8;
+      --dark: #101418;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Segoe UI, sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 18px 14px 80px;
+    }
+
+    header {
+      padding: 14px 2px 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 42px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 14px;
+      margin: 12px 0;
+    }
+
+    .actions {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      gap: 10px;
+      background: rgba(245, 247, 249, .94);
+      backdrop-filter: blur(12px);
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(221, 227, 234, .7);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 128px;
+      gap: 10px;
+    }
+
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: var(--dark);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: var(--soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 10px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .bar {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--soft);
+    }
+
+    .bar > div {
+      width: 0%;
+      height: 100%;
+      background: var(--teal);
+      transition: width .2s ease;
+    }
+
+    .status {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--yellow);
+      background: #fffdf3;
+      color: #3f3420;
+    }
+
+    .error {
+      display: none;
+      border-left: 4px solid var(--red);
+      background: #fff7f7;
+      color: #421818;
+      white-space: pre-wrap;
+    }
+
+    h2 {
+      margin: 20px 0 10px;
+      font-size: 20px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .coin {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 13px;
+    }
+
+    .coin-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .symbol {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .stage {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .stage-a { color: var(--green); background: #ecfdf3; border-color: #bbf7d0; }
+    .stage-pump { color: var(--teal); background: #ecfeff; border-color: #a5f3fc; }
+    .stage-watch { color: var(--yellow); background: #fefce8; border-color: #fde68a; }
+    .stage-risk { color: var(--red); background: #fef2f2; border-color: #fecaca; }
+
+    .score {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .coin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .coin-grid div {
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .coin-grid span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .coin-grid strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .coin a {
+      display: inline-flex;
+      margin-top: 10px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px 12px;
+    }
+
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    @media (max-width: 430px) {
+      .row,
+      .controls,
+      .coin-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <p class="eyebrow">Mobile browser scanner</p>
+      <h1>스마트폰 급등주 스캐너</h1>
+      <p class="lead">Google Apps Script 대신 스마트폰 브라우저에서 Binance USDT-M 선물 데이터를 직접 불러와 스캔합니다. Binance가 현재 위치나 네트워크를 차단하면 오류 안내가 표시됩니다.</p>
+    </header>
+
+    <section class="actions" aria-label="스캐너 실행">
+      <div class="row">
+        <button id="scanBtn">지금 스캔</button>
+        <button id="stopBtn" class="secondary" disabled>중지</button>
+      </div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="심볼 검색">
+        <select id="stageFilter">
+          <option value="">전체</option>
+          <option value="A_GRADE">A_GRADE</option>
+          <option value="PUMP_CANDIDATE">PUMP_CANDIDATE</option>
+          <option value="WATCH">WATCH</option>
+          <option value="DIST_RISK">DIST_RISK</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="요약">
+      <article class="metric"><span>상태</span><strong id="stateText">대기</strong></article>
+      <article class="metric"><span>결과</span><strong id="resultCount">0</strong></article>
+      <article class="metric"><span>진행</span><strong id="progressText">0 / 0</strong></article>
+      <article class="metric"><span>마지막 실행</span><strong id="lastRun">-</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="bar" aria-label="진행률"><div id="progressBar"></div></div>
+      <p class="status" id="statusText">스캔을 시작하려면 “지금 스캔”을 누르세요.</p>
+    </section>
+
+    <section class="panel notice">
+      <strong>중요:</strong> 이 파일은 스마트폰 브라우저에서 직접 실행됩니다. Binance Futures API가 해당 네트워크에서 차단되어 있으면, Apps Script와 마찬가지로 실제 데이터 스캔은 불가능합니다.
+    </section>
+
+    <section class="panel error" id="errorBox"></section>
+
+    <section>
+      <h2>탐지 결과</h2>
+      <div class="cards" id="cards">
+        <div class="empty">아직 스캔 결과가 없습니다.</div>
+      </div>
+    </section>
+
+    <details>
+      <summary>스마트폰 사용 방법</summary>
+      <ul>
+        <li>이 HTML 파일을 스마트폰에서 열거나, Drive/메신저/웹서버로 옮겨 브라우저에서 여세요.</li>
+        <li>iPhone Safari 또는 Android Chrome에서 공유 메뉴의 “홈 화면에 추가”를 쓰면 앱처럼 열 수 있습니다.</li>
+        <li>스캔은 버튼을 누른 순간에만 실행됩니다. 백그라운드 자동 실행은 스마트폰 브라우저 정책상 안정적으로 보장되지 않습니다.</li>
+      </ul>
+    </details>
+  </main>
+
+  <script>
+    const BINANCE_FAPI_BASE = 'https://fapi.binance.com';
+    const KLINE_LIMIT = 45;
+    const FETCH_CONCURRENCY = 8;
+    const TOP_NON_NORMAL_LIMIT = 250;
+    const EXCLUDE_BASE_ASSETS = new Set(['BTC', 'ETH', 'USDC', 'FDUSD', 'TUSD', 'USDP', 'BUSD', 'DAI', 'EUR', 'TRY']);
+    const STAGE_ORDER = { A_GRADE: 0, PUMP_CANDIDATE: 1, WATCH: 2, DIST_RISK: 3, NORMAL: 4 };
+
+    let abortController = null;
+    let latestRows = [];
+
+    const $ = (id) => document.getElementById(id);
+    const scanBtn = $('scanBtn');
+    const stopBtn = $('stopBtn');
+    const cards = $('cards');
+    const errorBox = $('errorBox');
+    const search = $('search');
+    const stageFilter = $('stageFilter');
+
+    scanBtn.addEventListener('click', runScan);
+    stopBtn.addEventListener('click', () => abortController?.abort());
+    search.addEventListener('input', renderCards);
+    stageFilter.addEventListener('change', renderCards);
+
+    restoreLastRows();
+
+    async function runScan() {
+      abortController = new AbortController();
+      latestRows = [];
+      setRunning(true);
+      setError('');
+      setState('실행 중');
+      setStatus('Binance Futures 심볼 목록을 불러오는 중입니다.');
+      setProgress(0, 0);
+      renderCards();
+
+      try {
+        const symbols = await fetchSymbols(abortController.signal);
+        const btcRet1d = await fetchBtcRet(abortController.signal);
+        let done = 0;
+        setProgress(done, symbols.length);
+        setStatus(`${symbols.length}개 USDT-M perpetual 심볼을 스캔합니다.`);
+
+        const scannedRows = await promisePool(symbols, FETCH_CONCURRENCY, async (meta) => {
+          try {
+            const candles = await fetchJson(`${BINANCE_FAPI_BASE}/fapi/v1/klines?symbol=${encodeURIComponent(meta.symbol)}&interval=1d&limit=${KLINE_LIMIT}`, abortController.signal);
+            return candleMetrics(meta, candles.map(parseKline), btcRet1d);
+          } catch (err) {
+            return null;
+          } finally {
+            done += 1;
+            setProgress(done, symbols.length);
+            if (done % 10 === 0 || done === symbols.length) {
+              setStatus(`${done} / ${symbols.length} 스캔 완료`);
+            }
+          }
+        });
+
+        latestRows = scannedRows
+          .filter(Boolean)
+          .sort((a, b) => {
+            const stageDiff = STAGE_ORDER[a.stage] - STAGE_ORDER[b.stage];
+            return stageDiff !== 0 ? stageDiff : b.score - a.score;
+          })
+          .filter((row) => row.stage !== 'NORMAL')
+          .slice(0, TOP_NON_NORMAL_LIMIT);
+
+        localStorage.setItem('mobilePumpScannerRows', JSON.stringify(latestRows));
+        localStorage.setItem('mobilePumpScannerLastRun', new Date().toISOString());
+
+        setState('완료');
+        $('lastRun').textContent = formatKst(new Date());
+        setStatus(`스캔 완료. 비정상 단계 ${latestRows.length}개를 표시합니다.`);
+        renderCards();
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          setState('중지됨');
+          setStatus('사용자가 스캔을 중지했습니다.');
+        } else {
+          setState('오류');
+          setStatus('스캔을 완료하지 못했습니다.');
+          setError(humanError(err));
+        }
+      } finally {
+        setRunning(false);
+      }
+    }
+
+    async function fetchSymbols(signal) {
+      const info = await fetchJson(`${BINANCE_FAPI_BASE}/fapi/v1/exchangeInfo`, signal);
+      return info.symbols
+        .filter((item) => item.quoteAsset === 'USDT'
+          && item.contractType === 'PERPETUAL'
+          && item.status === 'TRADING'
+          && !EXCLUDE_BASE_ASSETS.has(item.baseAsset))
+        .map((item) => ({ symbol: item.symbol, baseAsset: item.baseAsset }))
+        .sort((a, b) => a.symbol.localeCompare(b.symbol));
+    }
+
+    async function fetchBtcRet(signal) {
+      const candles = (await fetchJson(`${BINANCE_FAPI_BASE}/fapi/v1/klines?symbol=BTCUSDT&interval=1d&limit=3`, signal)).map(parseKline);
+      if (candles.length < 2) return null;
+      return pct(candles[candles.length - 1].close, candles[candles.length - 2].close);
+    }
+
+    async function fetchJson(url, signal) {
+      const response = await fetch(url, { signal, mode: 'cors', cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+      return response.json();
+    }
+
+    function parseKline(candle) {
+      return {
+        openTime: Number(candle[0]),
+        dateUtc: new Date(Number(candle[0])).toISOString().slice(0, 10),
+        open: Number(candle[1]),
+        high: Number(candle[2]),
+        low: Number(candle[3]),
+        close: Number(candle[4]),
+        baseVolume: Number(candle[5]),
+        quoteVolumeUsdt: Number(candle[7]),
+        tradeCount: Number(candle[8]),
+        takerBuyQuoteVolume: Number(candle[10]),
+      };
+    }
+
+    function candleMetrics(meta, candles, btcRet1d) {
+      if (!candles || candles.length < 9) return null;
+      const current = candles[candles.length - 1];
+      const prev = candles[candles.length - 2];
+      const prev7 = candles.slice(candles.length - 8, candles.length - 1);
+      const prev3 = candles.slice(candles.length - 4, candles.length - 1);
+      const dayRange = current.high - current.low;
+      const closePosition = dayRange > 0 ? (current.close - current.low) / dayRange : null;
+      const upperWick = dayRange > 0 ? (current.high - Math.max(current.open, current.close)) / dayRange * 100 : null;
+
+      const row = {
+        symbol: meta.symbol,
+        dateUtc: current.dateUtc,
+        ret1dPct: pct(current.close, prev.close),
+        highVsPrevClosePct: pct(current.high, prev.close),
+        ret3dPct: pct(current.close, candles[candles.length - 4].close),
+        ret7dPct: pct(current.close, candles[candles.length - 8].close),
+        quoteVolumeUsdt: current.quoteVolumeUsdt,
+        quoteVolXPrev1: ratio(current.quoteVolumeUsdt, prev.quoteVolumeUsdt),
+        quoteVolDeltaPrev1Usdt: current.quoteVolumeUsdt - prev.quoteVolumeUsdt,
+        quoteVolXPrev7: ratio(current.quoteVolumeUsdt, mean(prev7.map((row) => row.quoteVolumeUsdt))),
+        baseVolXPrev7: ratio(current.baseVolume, mean(prev7.map((row) => row.baseVolume))),
+        tradeCountXPrev7: ratio(current.tradeCount, mean(prev7.map((row) => row.tradeCount))),
+        closePositionInRange: closePosition,
+        upperWickPctOfRange: upperWick,
+        takerBuyQuoteSharePct: ratio(current.takerBuyQuoteVolume, current.quoteVolumeUsdt) * 100,
+        btcRet1dPct: btcRet1d,
+      };
+
+      row.volumeMeaning = classifyVolumeMeaning(row);
+      row.stage = classifyStage(row);
+      row.score = score(row);
+      row.tradingviewUrl = `https://www.tradingview.com/chart/?symbol=BINANCE:${row.symbol}.P`;
+      return row;
+    }
+
+    function classifyVolumeMeaning(row) {
+      const ret1d = finite(row.ret1dPct);
+      const highRet = finite(row.highVsPrevClosePct);
+      const quoteX7 = finite(row.quoteVolXPrev7);
+      const baseX7 = finite(row.baseVolXPrev7);
+      const closePos = finite(row.closePositionInRange);
+      const takerBuyShare = finite(row.takerBuyQuoteSharePct, 50);
+      const upperWick = finite(row.upperWickPctOfRange);
+
+      if (quoteX7 >= 5 && baseX7 >= 4 && ret1d >= 12 && closePos >= 0.65) return 'RE/BRK';
+      if (quoteX7 >= 5 && baseX7 >= 4 && highRet >= 20 && closePos < 0.45) return 'DIST';
+      if (quoteX7 >= 3 && baseX7 >= 3 && ret1d >= 6 && closePos >= 0.45) return 'IN/PB';
+      if (quoteX7 >= 4 && highRet >= 18 && upperWick >= 35 && takerBuyShare < 52) return 'SELL_ABS';
+      if (quoteX7 >= 2.5 && Math.abs(ret1d) <= 5) return 'ABS/WAIT';
+      return 'NORMAL';
+    }
+
+    function classifyStage(row) {
+      const quoteUsdt = finite(row.quoteVolumeUsdt);
+      const quoteX1 = finite(row.quoteVolXPrev1);
+      const quoteDelta1 = finite(row.quoteVolDeltaPrev1Usdt);
+      const quoteX7 = finite(row.quoteVolXPrev7);
+      const baseX7 = finite(row.baseVolXPrev7);
+      const tradesX7 = finite(row.tradeCountXPrev7);
+      const ret1d = finite(row.ret1dPct);
+      const ret3d = finite(row.ret3dPct);
+      const highRet = finite(row.highVsPrevClosePct);
+      const closePos = finite(row.closePositionInRange);
+      const upperWick = finite(row.upperWickPctOfRange);
+      const btcSafe = finite(row.btcRet1dPct) > -3;
+
+      if (isDistributionRisk(row)) return 'DIST_RISK';
+      if (btcSafe && quoteUsdt >= 100000000 && quoteX1 >= 3 && quoteDelta1 >= 50000000
+        && quoteX7 >= 5 && baseX7 >= 3 && tradesX7 >= 3
+        && closePos >= 0.65 && ret1d >= 12 && upperWick <= 35) return 'A_GRADE';
+      if (btcSafe && quoteUsdt >= 50000000 && quoteX1 >= 2 && quoteX7 >= 3 && baseX7 >= 2.5
+        && (ret1d >= 8 || ret3d >= 15 || highRet >= 18)
+        && closePos >= 0.55 && upperWick <= 45) return 'PUMP_CANDIDATE';
+      if (btcSafe && quoteUsdt >= 20000000 && (quoteX1 >= 1.5 || quoteX7 >= 2) && baseX7 >= 1.8) return 'WATCH';
+      return 'NORMAL';
+    }
+
+    function isDistributionRisk(row) {
+      return (finite(row.quoteVolXPrev1) >= 3 || finite(row.quoteVolXPrev7) >= 5)
+        && finite(row.highVsPrevClosePct) >= 18
+        && (finite(row.closePositionInRange) < 0.45
+          || finite(row.upperWickPctOfRange) >= 50
+          || row.volumeMeaning === 'DIST');
+    }
+
+    function score(row) {
+      let value = { A_GRADE: 100, PUMP_CANDIDATE: 70, WATCH: 40, DIST_RISK: 30, NORMAL: 0 }[row.stage];
+      value += Math.min(finite(row.quoteVolXPrev1), 30) * 1.3;
+      value += Math.min(finite(row.quoteVolXPrev7), 30) * 1.8;
+      value += Math.min(finite(row.baseVolXPrev7), 20) * 1.2;
+      value += Math.max(finite(row.ret1dPct), 0) * 0.6;
+      value += finite(row.closePositionInRange) * 18;
+      value -= Math.max(finite(row.upperWickPctOfRange) - 35, 0) * 0.4;
+      if (row.volumeMeaning === 'RE/BRK') value += 12;
+      if (row.volumeMeaning === 'DIST') value -= 8;
+      if (finite(row.btcRet1dPct) <= -3) value -= 25;
+      return Math.round(value * 100) / 100;
+    }
+
+    async function promisePool(items, limit, worker) {
+      const results = new Array(items.length);
+      let nextIndex = 0;
+      const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (nextIndex < items.length) {
+          const index = nextIndex++;
+          results[index] = await worker(items[index], index);
+        }
+      });
+      await Promise.all(runners);
+      return results;
+    }
+
+    function renderCards() {
+      const text = search.value.trim().toLowerCase();
+      const stage = stageFilter.value;
+      const rows = latestRows.filter((row) => {
+        const matchesText = !text || row.symbol.toLowerCase().includes(text) || row.stage.toLowerCase().includes(text);
+        const matchesStage = !stage || row.stage === stage;
+        return matchesText && matchesStage;
+      });
+
+      $('resultCount').textContent = rows.length;
+
+      if (!rows.length) {
+        cards.innerHTML = '<div class="empty">표시할 결과가 없습니다.</div>';
+        return;
+      }
+
+      cards.innerHTML = rows.map((row) => `
+        <article class="coin">
+          <div class="coin-head">
+            <div>
+              <div class="symbol">${escapeHtml(row.symbol)}</div>
+              <div class="score">Score ${formatNumber(row.score)} · ${escapeHtml(row.volumeMeaning)}</div>
+            </div>
+            <span class="stage ${stageClass(row.stage)}">${escapeHtml(row.stage)}</span>
+          </div>
+          <div class="coin-grid">
+            <div><span>1D %</span><strong>${formatNumber(row.ret1dPct)}</strong></div>
+            <div><span>Vol x1</span><strong>${formatNumber(row.quoteVolXPrev1)}</strong></div>
+            <div><span>Vol x7</span><strong>${formatNumber(row.quoteVolXPrev7)}</strong></div>
+            <div><span>거래대금</span><strong>${compact(row.quoteVolumeUsdt)}</strong></div>
+            <div><span>위치</span><strong>${formatPercent(row.closePositionInRange)}</strong></div>
+            <div><span>윗꼬리</span><strong>${formatNumber(row.upperWickPctOfRange)}</strong></div>
+          </div>
+          <a href="${row.tradingviewUrl}" target="_blank" rel="noreferrer">TradingView 열기</a>
+        </article>
+      `).join('');
+    }
+
+    function restoreLastRows() {
+      try {
+        latestRows = JSON.parse(localStorage.getItem('mobilePumpScannerRows') || '[]');
+        const lastRun = localStorage.getItem('mobilePumpScannerLastRun');
+        if (lastRun) $('lastRun').textContent = formatKst(new Date(lastRun));
+        renderCards();
+      } catch {
+        latestRows = [];
+      }
+    }
+
+    function setRunning(isRunning) {
+      scanBtn.disabled = isRunning;
+      stopBtn.disabled = !isRunning;
+    }
+
+    function setProgress(done, total) {
+      $('progressText').textContent = `${done} / ${total}`;
+      $('progressBar').style.width = total ? `${Math.round(done / total * 100)}%` : '0%';
+    }
+
+    function setState(text) {
+      $('stateText').textContent = text;
+    }
+
+    function setStatus(text) {
+      $('statusText').textContent = text;
+    }
+
+    function setError(message) {
+      errorBox.style.display = message ? 'block' : 'none';
+      errorBox.textContent = message;
+    }
+
+    function humanError(err) {
+      const message = String(err && err.message ? err.message : err);
+      if (message.includes('HTTP 451')) {
+        return 'Binance가 현재 스마트폰 네트워크 또는 실행 위치의 요청을 HTTP 451로 차단했습니다. 이 경우 이 HTML은 정상이어도 Binance Futures 데이터가 들어오지 않습니다.\n\n가능한 조치: 다른 허용 네트워크에서 실행하거나, 허용된 서버/데이터 프록시를 사용해야 합니다.\n\n원문: ' + message;
+      }
+      if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+        return '네트워크 또는 브라우저 보안 정책 때문에 Binance API를 불러오지 못했습니다. 모바일 브라우저가 외부 API 호출을 막았거나 Binance 접속이 차단되었을 수 있습니다.\n\n원문: ' + message;
+      }
+      return message;
+    }
+
+    function ratio(now, prev) {
+      if (prev === null || prev === 0 || Number.isNaN(prev)) return null;
+      return now / prev;
+    }
+
+    function pct(now, prev) {
+      if (prev === null || prev === 0 || Number.isNaN(prev)) return null;
+      return (now / prev - 1) * 100;
+    }
+
+    function mean(values) {
+      const clean = values.filter((value) => value !== null && !Number.isNaN(value));
+      if (!clean.length) return null;
+      return clean.reduce((sum, value) => sum + value, 0) / clean.length;
+    }
+
+    function finite(value, fallback = 0) {
+      return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+    }
+
+    function formatNumber(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '-';
+      return number.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+    }
+
+    function formatPercent(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      return `${Math.round(value * 100)}%`;
+    }
+
+    function compact(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '-';
+      if (number >= 1000000000) return `${(number / 1000000000).toFixed(1)}B`;
+      if (number >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
+      return number.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+    }
+
+    function formatKst(date) {
+      return new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(date);
+    }
+
+    function stageClass(stage) {
+      if (stage === 'A_GRADE') return 'stage-a';
+      if (stage === 'PUMP_CANDIDATE') return 'stage-pump';
+      if (stage === 'DIST_RISK') return 'stage-risk';
+      return 'stage-watch';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+  </script>
+</body>
+</html>
