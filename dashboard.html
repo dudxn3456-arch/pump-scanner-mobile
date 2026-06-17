@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Binance USDT-M 급등주 스캐너 Cloud</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --ink: #161a1d;
+      --muted: #5b6470;
+      --line: #dfe3e8;
+      --soft: #eef1f4;
+      --green: #15803d;
+      --teal: #0f766e;
+      --yellow: #a16207;
+      --red: #b91c1c;
+      --black: #0f1115;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+
+    header {
+      display: grid;
+      gap: 18px;
+      padding: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(32px, 4.8vw, 54px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .source-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin: 24px 0;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+    }
+
+    .metric-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .metric-sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      margin-top: 28px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 23px;
+      letter-spacing: 0;
+    }
+
+    .section-note {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--yellow);
+      background: #fffdf7;
+      padding: 14px 16px;
+      color: #3d3420;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    input,
+    select {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 7px 10px;
+    }
+
+    input {
+      min-width: min(340px, 100%);
+      flex: 1;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #fafbfc;
+      color: #3b4148;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      z-index: 1;
+    }
+
+    tbody tr:hover {
+      background: #fbfcfd;
+    }
+
+    .stage {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .stage-a {
+      color: var(--green);
+      background: #ecfdf3;
+      border-color: #bbf7d0;
+    }
+
+    .stage-pump {
+      color: var(--teal);
+      background: #ecfeff;
+      border-color: #a5f3fc;
+    }
+
+    .stage-watch {
+      color: var(--yellow);
+      background: #fefce8;
+      border-color: #fde68a;
+    }
+
+    .stage-risk {
+      color: var(--red);
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 14px;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--black);
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .two-col {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .definition {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .definition div {
+      display: grid;
+      grid-template-columns: 145px 1fr;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .definition dt {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .definition dd {
+      margin: 0;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 14px 16px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 14px 0 0;
+      padding: 14px;
+      border-radius: 8px;
+      background: #0f1115;
+      color: #f4f6f8;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    footer {
+      margin-top: 34px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 860px) {
+      .metrics,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .definition div {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <p class="eyebrow">Google Drive 변환 산출물</p>
+      <h1>Binance USDT-M 급등주 스캐너 Cloud</h1>
+      <p class="lead">Google Drive에서 찾은 스프레드시트, Apps Script 코드, 설정 README를 바탕으로 정리한 HTML 대시보드입니다. 15분마다 Binance USDT-M 선물 시장을 스캔하도록 설계된 클라우드형 급등주 스캐너입니다.</p>
+      <nav class="source-links" aria-label="원본 파일">
+        <a class="button" href="https://docs.google.com/spreadsheets/d/1RmZnCqu7m8BwkpfGhEWDnW-7rkP3yF8r-j23oZQv-n4/edit" target="_blank" rel="noreferrer">Google Sheet 열기</a>
+        <a class="button" href="https://drive.google.com/file/d/1yhP2CqS2A-fvWSo6bTHsTty11hyA0I0C/view" target="_blank" rel="noreferrer">Code.gs 열기</a>
+        <a class="button" href="https://drive.google.com/file/d/1N9KQe2gU6prntsUKmMzkvsAIYgemlwm1/view" target="_blank" rel="noreferrer">README 열기</a>
+        <a class="button" href="mobile-binance-usdtm-pump-scanner.html">모바일 실행판 열기</a>
+      </nav>
+    </header>
+
+    <section class="grid metrics" aria-label="요약 지표">
+      <article class="card">
+        <p class="metric-label">현재 상태</p>
+        <p class="metric-value">승인 전</p>
+        <p class="metric-sub">Apps Script에서 setupTrigger() 실행 필요</p>
+      </article>
+      <article class="card">
+        <p class="metric-label">스캔 주기</p>
+        <p class="metric-value">15분</p>
+        <p class="metric-sub">Google Apps Script 클라우드 트리거</p>
+      </article>
+      <article class="card">
+        <p class="metric-label">누적 탐지 종목</p>
+        <p class="metric-value">22개</p>
+        <p class="metric-sub">DetectionLog 기준</p>
+      </article>
+      <article class="card">
+        <p class="metric-label">데이터 출처</p>
+        <p class="metric-value">Binance</p>
+        <p class="metric-sub">Futures public API / USDT-M perpetual</p>
+      </article>
+    </section>
+
+    <section>
+      <div class="notice">
+        <strong>현재 Scanner 탭에는 헤더만 있습니다.</strong>
+        누적 탐지 이력은 DetectionLog 탭에 남아 있어 아래 표에는 DetectionLog 기준 최신 탐지 종목을 표시했습니다. 실제 자동 갱신은 Apps Script 권한 승인 후 시작됩니다.
+      </div>
+    </section>
+
+    <section aria-labelledby="detected-title">
+      <div class="section-head">
+        <div>
+          <h2 id="detected-title">DetectionLog 종목</h2>
+          <p class="section-note">심볼, 현재 단계, 점수, 거래대금 증가율, 1일 수익률, 최근 탐지 시간을 빠르게 확인할 수 있습니다.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="심볼 또는 단계 검색" aria-label="심볼 또는 단계 검색">
+        <select id="stageFilter" aria-label="단계 필터">
+          <option value="">전체 단계</option>
+          <option value="A_GRADE">A_GRADE</option>
+          <option value="PUMP_CANDIDATE">PUMP_CANDIDATE</option>
+          <option value="WATCH">WATCH</option>
+          <option value="DIST_RISK">DIST_RISK</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="detectedTable">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Current Stage</th>
+              <th>First Stage</th>
+              <th>Score</th>
+              <th>Volume Meaning</th>
+              <th>Quote Vol x1</th>
+              <th>Quote Vol x7</th>
+              <th>1D %</th>
+              <th>Count</th>
+              <th>Last Detected KST</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-stage="A_GRADE"><td>AGTUSDT</td><td><span class="stage stage-a">A_GRADE</span></td><td>A_GRADE</td><td>312.39</td><td>RE/BRK</td><td>86.58</td><td>48.88</td><td>111.01</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>TACUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>208.69</td><td>RE/BRK</td><td>40.37</td><td>35.25</td><td>40.02</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="PUMP_CANDIDATE"><td>ASTERUSDT</td><td><span class="stage stage-pump">PUMP_CANDIDATE</span></td><td>A_GRADE</td><td>119.55</td><td>IN/PB</td><td>5.26</td><td>9.74</td><td>12.17</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="PUMP_CANDIDATE"><td>BLESSUSDT</td><td><span class="stage stage-pump">PUMP_CANDIDATE</span></td><td>PUMP_CANDIDATE</td><td>119.01</td><td>ABS/WAIT</td><td>4.67</td><td>11.12</td><td>3.66</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="PUMP_CANDIDATE"><td>TRIAUSDT</td><td><span class="stage stage-pump">PUMP_CANDIDATE</span></td><td>WATCH</td><td>103.92</td><td>ABS/WAIT</td><td>2.01</td><td>8.37</td><td>2.13</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>BIOUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>82.17</td><td>IN/PB</td><td>4.83</td><td>3.44</td><td>17.19</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>IDUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>82.01</td><td>NORMAL</td><td>9.82</td><td>2.36</td><td>17.16</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>SPXUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>PUMP_CANDIDATE</td><td>76.17</td><td>IN/PB</td><td>1.04</td><td>5.12</td><td>16.91</td><td>7</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>BRUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>PUMP_CANDIDATE</td><td>66.76</td><td>ABS/WAIT</td><td>1.15</td><td>7.04</td><td>2.69</td><td>7</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>LDOUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>60.72</td><td>ABS/WAIT</td><td>2.44</td><td>2.89</td><td>4.54</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="DIST_RISK"><td>ELSAUSDT</td><td><span class="stage stage-risk">DIST_RISK</span></td><td>DIST_RISK</td><td>55.6</td><td>SELL_ABS</td><td>10.07</td><td>6.28</td><td>5.67</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>龙虾USDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>52.85</td><td>NORMAL</td><td>0.86</td><td>3.74</td><td>-39.70</td><td>7</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>SENTUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>49.33</td><td>NORMAL</td><td>0.58</td><td>2.00</td><td>-11.89</td><td>1</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>SQDUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td>48.78</td><td>ABS/WAIT</td><td>4.60</td><td>5.32</td><td>-0.82</td><td>6</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="WATCH"><td>UNIUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>PUMP_CANDIDATE</td><td>44.38</td><td>ABS/WAIT</td><td>1.76</td><td>6.00</td><td>-0.18</td><td>7</td><td>2026-06-18 2:11:38</td></tr>
+            <tr data-stage="DIST_RISK"><td>SPACEUSDT</td><td><span class="stage stage-risk">DIST_RISK</span></td><td>DIST_RISK</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="PUMP_CANDIDATE"><td>PORTALUSDT</td><td><span class="stage stage-pump">PUMP_CANDIDATE</span></td><td>PUMP_CANDIDATE</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="WATCH"><td>JTOUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="WATCH"><td>EVAAUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="WATCH"><td>AEROUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="WATCH"><td>SYNUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+            <tr data-stage="WATCH"><td>BSBUSDT</td><td><span class="stage stage-watch">WATCH</span></td><td>WATCH</td><td></td><td></td><td></td><td></td><td></td><td>1</td><td>2026-06-17 1:10:08</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="setup-title">
+      <h2 id="setup-title">설정 순서</h2>
+      <p class="section-note">처음 한 번만 권한 승인을 완료하면, 이후에는 PC가 꺼져 있어도 Google Apps Script가 실행됩니다.</p>
+      <ol class="steps">
+        <li>Google Sheet <strong>Binance USDT-M 급등주 스캐너 Cloud</strong>를 엽니다.</li>
+        <li>상단 메뉴에서 <strong>확장 프로그램 &gt; Apps Script</strong>를 엽니다.</li>
+        <li>Drive에 있는 <strong>Binance_USDTM_Pump_Scanner_Code.gs</strong>의 전체 내용을 복사합니다.</li>
+        <li>Apps Script 편집기의 기본 <strong>Code.gs</strong> 내용을 지운 뒤 붙여넣고 저장합니다.</li>
+        <li>함수 선택 드롭다운에서 <strong>setupTrigger</strong>를 선택하고 실행합니다.</li>
+        <li>처음 1회 권한 승인을 완료한 뒤 <strong>Summary</strong>와 <strong>Scanner</strong> 탭을 확인합니다.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="rules-title">
+      <h2 id="rules-title">판정 기준 요약</h2>
+      <div class="grid two-col">
+        <article class="card">
+          <dl class="definition">
+            <div><dt>A_GRADE</dt><dd>거래대금, 거래량, 거래 횟수 증가가 강하고 종가 위치가 높으며 윗꼬리 부담이 제한적인 상위 후보입니다.</dd></div>
+            <div><dt>PUMP_CANDIDATE</dt><dd>급등 후보. 거래대금과 가격 움직임이 커졌지만 추가 확인이 필요한 단계입니다.</dd></div>
+            <div><dt>WATCH</dt><dd>거래량이 예열되는 관찰 단계입니다. 추격 진입보다 구조 확인이 우선입니다.</dd></div>
+            <div><dt>DIST_RISK</dt><dd>고점 대비 종가 위치가 낮거나 윗꼬리가 커서 분배 위험으로 분류된 단계입니다.</dd></div>
+          </dl>
+        </article>
+        <article class="card">
+          <dl class="definition">
+            <div><dt>실행 함수</dt><dd><code>setupTrigger()</code>: 15분 자동 실행 트리거를 생성하고 즉시 1회 스캔합니다.</dd></div>
+            <div><dt>수동 실행</dt><dd><code>scanBinanceUsdtmPumpCandidates()</code>: 현재 시점 기준으로 한 번 스캔합니다.</dd></div>
+            <div><dt>중지</dt><dd><code>removeScannerTriggers_()</code>: 자동 스캔 트리거를 삭제합니다.</dd></div>
+            <div><dt>주의</dt><dd>정보 제공용 스캐너이며 자동매매, 매수/매도 권유, 수익 보장을 의미하지 않습니다.</dd></div>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="files-title">
+      <h2 id="files-title">찾은 Google Drive 파일</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>파일명</th>
+              <th>유형</th>
+              <th>수정일</th>
+              <th>역할</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://docs.google.com/spreadsheets/d/1RmZnCqu7m8BwkpfGhEWDnW-7rkP3yF8r-j23oZQv-n4/edit" target="_blank" rel="noreferrer">Binance USDT-M 급등주 스캐너 Cloud</a></td>
+              <td>Google Sheet</td>
+              <td>2026-06-17 21:47:18 UTC</td>
+              <td>사용법, Summary, Scanner, AllData, Errors, DetectionLog 보관</td>
+            </tr>
+            <tr>
+              <td><a href="https://drive.google.com/file/d/1yhP2CqS2A-fvWSo6bTHsTty11hyA0I0C/view" target="_blank" rel="noreferrer">Binance_USDTM_Pump_Scanner_Code.gs</a></td>
+              <td>Apps Script 코드</td>
+              <td>2026-06-17 17:13:17 UTC</td>
+              <td>Binance API 호출, 단계 분류, 점수 계산, 시트 갱신</td>
+            </tr>
+            <tr>
+              <td><a href="https://drive.google.com/file/d/1N9KQe2gU6prntsUKmMzkvsAIYgemlwm1/view" target="_blank" rel="noreferrer">Binance_USDTM_Pump_Scanner_Setup_README.md</a></td>
+              <td>Markdown README</td>
+              <td>2026-06-17 17:13:21 UTC</td>
+              <td>설치와 실행 절차 요약</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="readme-title">
+      <h2 id="readme-title">README 원문</h2>
+      <details>
+        <summary>설정 README 보기</summary>
+        <pre><code># Binance USDT-M Pump Scanner Cloud
+
+This folder contains the Google Apps Script version of the Binance USDT-M pump scanner.
+
+Google Drive is storage, not a compute runtime. To keep scanning while the PC is off,
+use a Google Sheet with a bound Apps Script time trigger.
+
+Setup:
+1. Open the Google Sheet named `Binance USDT-M Pump Scanner Cloud`.
+2. Go to Extensions &gt; Apps Script.
+3. Paste the full contents of `Code.gs`.
+4. Save the project.
+5. Run `setupTrigger()` once.
+6. Approve permissions.
+
+After setup, Google Apps Script runs `scanBinanceUsdtmPumpCandidates()` every 15 minutes
+and writes results to:
+- `Summary`
+- `Scanner`
+- `AllData`
+- `Errors`
+- `DetectionLog`
+
+Notes:
+- The scanner uses Binance Futures public API data.
+- `DetectionLog` keeps each symbol's first detected time, latest detected time, stage changes, and detection count.
+- The scanner is informational only and is not an automated trading signal.
+- If API errors or timeouts occur, check the `Errors` sheet.</code></pre>
+      </details>
+    </section>
+
+    <footer>
+      생성 기준: Google Drive 검색 결과 및 시트 값. 이 HTML은 정적 스냅샷이며, 실시간 데이터 갱신은 원본 Google Sheet에서 확인하세요.
+    </footer>
+  </main>
+
+  <script>
+    const search = document.getElementById('search');
+    const stageFilter = document.getElementById('stageFilter');
+    const rows = Array.from(document.querySelectorAll('#detectedTable tbody tr'));
+
+    function applyFilters() {
+      const text = search.value.trim().toLowerCase();
+      const stage = stageFilter.value;
+
+      rows.forEach((row) => {
+        const rowText = row.textContent.toLowerCase();
+        const rowStage = row.dataset.stage;
+        const matchesText = !text || rowText.includes(text);
+        const matchesStage = !stage || rowStage === stage;
+        row.style.display = matchesText && matchesStage ? '' : 'none';
+      });
+    }
+
+    search.addEventListener('input', applyFilters);
+    stageFilter.addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>
