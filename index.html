@@ -4,8 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101418">
+  <meta name="application-name" content="급등주 스캐너">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="급등주 스캐너">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
   <title>스마트폰 급등주 스캐너</title>
   <style>
     :root {
@@ -125,6 +130,10 @@
     button:disabled {
       cursor: not-allowed;
       opacity: .55;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     input,
@@ -338,6 +347,7 @@
         <button id="scanBtn">지금 스캔</button>
         <button id="stopBtn" class="secondary" disabled>중지</button>
       </div>
+      <button id="installBtn" class="secondary" hidden>앱 설치</button>
       <div class="controls">
         <input id="search" type="search" placeholder="심볼 검색">
         <select id="stageFilter">
@@ -378,8 +388,10 @@
     <details>
       <summary>스마트폰 사용 방법</summary>
       <ul>
-        <li>이 HTML 파일을 스마트폰에서 열거나, Drive/메신저/웹서버로 옮겨 브라우저에서 여세요.</li>
+        <li>GitHub Pages 주소를 스마트폰 브라우저에서 여세요.</li>
         <li>iPhone Safari 또는 Android Chrome에서 공유 메뉴의 “홈 화면에 추가”를 쓰면 앱처럼 열 수 있습니다.</li>
+        <li>Android Chrome에서 설치 버튼이 보이면 “앱 설치”를 누르면 됩니다.</li>
+        <li>TradingView 링크는 설치된 TradingView 앱이 처리할 수 있으면 앱으로 열리고, 그렇지 않으면 웹 차트로 열립니다.</li>
         <li>스캔은 버튼을 누른 순간에만 실행됩니다. 백그라운드 자동 실행은 스마트폰 브라우저 정책상 안정적으로 보장되지 않습니다.</li>
       </ul>
     </details>
@@ -399,15 +411,33 @@
     const $ = (id) => document.getElementById(id);
     const scanBtn = $('scanBtn');
     const stopBtn = $('stopBtn');
+    const installBtn = $('installBtn');
     const cards = $('cards');
     const errorBox = $('errorBox');
     const search = $('search');
     const stageFilter = $('stageFilter');
+    let deferredInstallPrompt = null;
 
     scanBtn.addEventListener('click', runScan);
     stopBtn.addEventListener('click', () => abortController?.abort());
     search.addEventListener('input', renderCards);
     stageFilter.addEventListener('change', renderCards);
+    installBtn.addEventListener('click', installApp);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installBtn.hidden = false;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      installBtn.hidden = true;
+    });
 
     restoreLastRows();
 
@@ -543,7 +573,7 @@
       row.volumeMeaning = classifyVolumeMeaning(row);
       row.stage = classifyStage(row);
       row.score = score(row);
-      row.tradingviewUrl = `https://www.tradingview.com/chart/?symbol=BINANCE:${row.symbol}.P`;
+      row.tradingviewUrl = `https://www.tradingview.com/chart/?symbol=BINANCE:${encodeURIComponent(row.symbol + '.P')}`;
       return row;
     }
 
@@ -657,9 +687,17 @@
             <div><span>위치</span><strong>${formatPercent(row.closePositionInRange)}</strong></div>
             <div><span>윗꼬리</span><strong>${formatNumber(row.upperWickPctOfRange)}</strong></div>
           </div>
-          <a href="${row.tradingviewUrl}" target="_blank" rel="noreferrer">TradingView 열기</a>
+          <a href="${row.tradingviewUrl}" target="_blank" rel="noopener">TradingView 앱/웹 열기</a>
         </article>
       `).join('');
+    }
+
+    async function installApp() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice.catch(() => null);
+      deferredInstallPrompt = null;
+      installBtn.hidden = true;
     }
 
     function restoreLastRows() {
